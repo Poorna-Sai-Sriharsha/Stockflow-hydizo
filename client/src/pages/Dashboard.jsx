@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import API from '../api/api';
+import { Link } from 'react-router-dom';
 import StatCard from '../components/StatCard';
 import { AlertCircle, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
