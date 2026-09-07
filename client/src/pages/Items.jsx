@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../api/api';
 import { AuthContext } from '../context/AuthContext';
-import { Plus, Search, Filter, Edit2, Trash2, Eye } from 'lucide-react';
+import { Plus, Search, Filter, Edit2, Trash2, Eye, Download, Upload } from 'lucide-react';
 
 const Items = () => {
   const { user } = useContext(AuthContext);
@@ -70,6 +70,39 @@ const Items = () => {
     setIsModalOpen(true);
   };
 
+  const handleExport = async () => {
+    try {
+      const response = await API.get('/items/export', { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'inventory_audit.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      alert('Error exporting items');
+    }
+  };
+
+  const handleImport = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const { data } = await API.post('/items/import', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      alert(data.message);
+      fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error importing items');
+    }
+  };
+
   return (
     <div className="p-4 md:p-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -77,18 +110,32 @@ const Items = () => {
           <h1 className="text-xl md:text-2xl font-bold text-slate-800">Inventory</h1>
           <p className="hidden sm:block text-slate-500">Manage your products and stock levels</p>
         </div>
-        {user?.role === 'admin' && (
-          <button
-            onClick={() => {
-              setEditingItem(null);
-              setFormData({ name: '', sku: '', category: '', quantity: 0, unitPrice: 0, supplier: '', reorderThreshold: 10 });
-              setIsModalOpen(true);
-            }}
-            className="px-4 py-2 rounded font-medium transition-colors duration-200 flex items-center justify-center gap-2 bg-blue-600 text-white hover:bg-blue-700"
-          >
-            <Plus size={20} /> <span className="hidden sm:inline">Add Item</span>
-          </button>
-        )}
+        <div className="flex flex-wrap gap-2">
+          {user?.role === 'admin' && (
+            <>
+              <label className="px-4 py-2 rounded font-medium transition-colors duration-200 flex items-center justify-center gap-2 bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer text-sm">
+                <Upload size={18} /> <span className="hidden sm:inline">Import CSV</span>
+                <input type="file" accept=".csv" className="hidden" onChange={handleImport} />
+              </label>
+              <button
+                onClick={handleExport}
+                className="px-4 py-2 rounded font-medium transition-colors duration-200 flex items-center justify-center gap-2 bg-slate-100 text-slate-700 hover:bg-slate-200 text-sm"
+              >
+                <Download size={18} /> <span className="hidden sm:inline">Export CSV</span>
+              </button>
+              <button
+                onClick={() => {
+                  setEditingItem(null);
+                  setFormData({ name: '', sku: '', category: '', quantity: 0, unitPrice: 0, supplier: '', reorderThreshold: 10 });
+                  setIsModalOpen(true);
+                }}
+                className="px-4 py-2 rounded font-medium transition-colors duration-200 flex items-center justify-center gap-2 bg-blue-600 text-white hover:bg-blue-700"
+              >
+                <Plus size={20} /> <span className="hidden sm:inline">Add Item</span>
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
 

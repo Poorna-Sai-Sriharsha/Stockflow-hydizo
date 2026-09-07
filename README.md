@@ -33,6 +33,7 @@ This application utilizes a decoupled architecture to ensure scalability and mai
 * **Role-Based Access Control (RBAC):** Distinguishes between `Admin` (full CRUD and category management) and `Staff` (stock adjustments and viewing), mimicking real-world corporate hierarchies.
 * **Advanced Catalog Management:** Full CRUD capabilities for items and categories, featuring real-time search, multi-parameter filtering, and dynamic sorting.
 * **Responsive Operations:** A fully adaptive layout that allows warehouse staff to manage stock on tablets or mobile devices via a collapsing sidebar pattern.
+* **Bulk CSV Data Management:** Seamlessly import large inventories from CSV files and export real-time stock audits for official reporting, ensuring zero manual entry for initial setup.
 
 ---
 
@@ -118,10 +119,8 @@ stockflow/
 ## 📈 Future Roadmap
 
 As a living project, the following enterprise-grade features are slated for implementation:
-* **CSV/PDF Export**: One-click generation of inventory audits and transaction reports.
 * **Advanced Analytics**: Integration of Recharts for stock trend visualization over time.
 * **Automated Notifications**: Email/Slack alerts triggered automatically when stock hits critical levels.
-* **Bulk Import**: CSV upload capability for rapid inventory onboarding.
 
 ---
 
