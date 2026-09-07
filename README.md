@@ -1,6 +1,6 @@
 # 📦 StockFlow — Enterprise Inventory Intelligence
 
-![StockFlow Banner](StockFlow-Banner.png)
+![StockFlow Banner](Stockflow.png)
 
 **StockFlow** is a pragmatic, high-performance inventory tracking system designed for internal warehouse and retail operations. Moving away from generic SaaS templates, StockFlow employs a utilitarian, "internal-tool" design language—prioritizing data density, operational speed, and absolute reliability.
 
