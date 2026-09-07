@@ -71,11 +71,11 @@ const Items = () => {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800">Inventory</h1>
-          <p className="text-slate-500">Manage your products and stock levels</p>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl md:text-2xl font-bold text-slate-800">Inventory</h1>
+          <p className="hidden sm:block text-slate-500">Manage your products and stock levels</p>
         </div>
         {user?.role === 'admin' && (
           <button
@@ -84,12 +84,13 @@ const Items = () => {
               setFormData({ name: '', sku: '', category: '', quantity: 0, unitPrice: 0, supplier: '', reorderThreshold: 10 });
               setIsModalOpen(true);
             }}
-            className="px-4 py-2 rounded font-medium transition-colors duration-200 flex items-center justify-center gap-2 px-4 py-2 rounded font-medium transition-colors duration-200 flex items-center justify-center gap-2-primary"
+            className="px-4 py-2 rounded font-medium transition-colors duration-200 flex items-center justify-center gap-2 bg-blue-600 text-white hover:bg-blue-700"
           >
-            <Plus size={20} /> Add Item
+            <Plus size={20} /> <span className="hidden sm:inline">Add Item</span>
           </button>
         )}
       </div>
+
 
       <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-4 mb-6 flex flex-wrap gap-4 items-center">
         <div className="flex-1 min-w-[250px] relative">
@@ -102,7 +103,7 @@ const Items = () => {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <div className="w-48 relative">
+        <div className="w-full md:w-48 relative">
           <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <select
             className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white pl-10 appearance-none"
@@ -113,7 +114,7 @@ const Items = () => {
             {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
           </select>
         </div>
-        <div className="w-48">
+        <div className="w-full md:w-48">
           <select
             className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             value={sort}
@@ -129,26 +130,27 @@ const Items = () => {
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-medium">
-              <tr className="border-b border-slate-200">
-                <th className="px-6 py-3">SKU</th>
-                <th className="px-6 py-3">Item Name</th>
-                <th className="px-6 py-3">Category</th>
-                <th className="px-6 py-3">Quantity</th>
-                <th className="px-6 py-3">Price</th>
-                <th className="px-6 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 text-sm">
-              {loading ? (
-                <tr><td colSpan="6" className="px-6 py-12 text-center text-slate-400">Loading inventory...</td></tr>
-              ) : items.length === 0 ? (
-                <tr><td colSpan="6" className="px-6 py-12 text-center text-slate-400">No items found.</td></tr>
-              ) : (
-                items.map((item) => (
+      {loading ? (
+        <div className="text-center py-12 text-slate-400">Loading inventory...</div>
+      ) : items.length === 0 ? (
+        <div className="text-center py-12 text-slate-400">No items found.</div>
+      ) : (
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden md:block bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+            <table className="w-full text-left">
+              <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-medium">
+                <tr className="border-b border-slate-200">
+                  <th className="px-6 py-3">SKU</th>
+                  <th className="px-6 py-3">Item Name</th>
+                  <th className="px-6 py-3">Category</th>
+                  <th className="px-6 py-3">Quantity</th>
+                  <th className="px-6 py-3">Price</th>
+                  <th className="px-6 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200 text-sm">
+                {items.map((item) => (
                   <tr key={item._id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4 font-mono text-xs text-slate-500">{item.sku}</td>
                     <td className="px-6 py-4 font-medium text-slate-800">{item.name}</td>
@@ -177,12 +179,54 @@ const Items = () => {
                       </div>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="grid grid-cols-1 gap-4 md:hidden">
+            {items.map((item) => (
+              <div key={item._id} className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm space-y-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs font-mono text-slate-400">{item.sku}</p>
+                    <h3 className="font-bold text-slate-800">{item.name}</h3>
+                    <p className="text-xs text-slate-500">{item.category?.name}</p>
+                  </div>
+                  <div className="flex gap-1">
+                    {user?.role === 'admin' && (
+                      <>
+                        <button onClick={() => openEdit(item)} className="p-2 text-slate-400 hover:text-amber-600">
+                          <Edit2 size={16} />
+                        </button>
+                        <button onClick={() => handleDelete(item._id)} className="p-2 text-slate-400 hover:text-red-600">
+                          <Trash2 size={16} />
+                        </button>
+                      </>
+                    )}
+                    <Link to={`/items/${item._id}`} className="p-2 text-slate-400 hover:text-blue-600">
+                      <Eye size={16} />
+                    </Link>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center pt-3 border-t border-slate-100">
+                  <div className="flex flex-col">
+                    <span className="text-xs text-slate-500">Quantity</span>
+                    <span className={`text-lg font-bold ${item.quantity <= item.reorderThreshold ? 'text-red-600' : 'text-slate-700'}`}>
+                      {item.quantity}
+                    </span>
+                  </div>
+                  <div className="flex flex-col text-right">
+                    <span className="text-xs text-slate-500">Unit Price</span>
+                    <span className="text-lg font-medium text-slate-700">${item.unitPrice.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">

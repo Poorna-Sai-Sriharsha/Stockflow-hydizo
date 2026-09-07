@@ -56,11 +56,11 @@ const Categories = () => {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Categories</h1>
-          <p className="text-slate-500">Organize your inventory into groups</p>
+          <h1 className="text-xl md:text-2xl font-bold text-slate-800">Categories</h1>
+          <p className="text-sm md:text-base text-slate-500">Organize your inventory into groups</p>
         </div>
         {user?.role === 'admin' && (
           <button
@@ -69,60 +69,94 @@ const Categories = () => {
               setFormData({ name: '' });
               setIsModalOpen(true);
             }}
-            className="px-4 py-2 rounded font-medium transition-colors duration-200 flex items-center justify-center gap-2 px-4 py-2 rounded font-medium transition-colors duration-200 flex items-center justify-center gap-2-primary"
+            className="px-4 py-2 rounded font-medium transition-colors duration-200 flex items-center justify-center gap-2 bg-blue-600 text-white hover:bg-blue-700"
           >
-            <Plus size={20} /> Add Category
+            <Plus size={20} /> <span className="hidden sm:inline">Add Category</span>
           </button>
         )}
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-medium">
-            <tr className="border-b border-slate-200">
-              <th className="px-6 py-3">Category Name</th>
-              <th className="px-6 py-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200 text-sm">
-            {loading ? (
-              <tr><td colSpan="2" className="px-6 py-12 text-center text-slate-400">Loading...</td></tr>
-            ) : categories.length === 0 ? (
-              <tr><td colSpan="2" className="px-6 py-12 text-center text-slate-400">No categories found.</td></tr>
-            ) : (
-              categories.map(cat => (
-                <tr key={cat._id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-slate-800">{cat.name}</td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      {user?.role === 'admin' && (
-                        <>
-                          <button
-                            onClick={() => {
-                              setEditingCat(cat);
-                              setFormData({ name: cat.name });
-                              setIsModalOpen(true);
-                            }}
-                            className="p-2 text-slate-400 hover:text-amber-600 transition-colors"
-                          >
-                            <Edit2 size={18} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(cat._id)}
-                            className="p-2 text-slate-400 hover:text-red-600 transition-colors"
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
+      {loading ? (
+        <div className="text-center py-12 text-slate-400">Loading...</div>
+      ) : categories.length === 0 ? (
+        <div className="text-center py-12 text-slate-400">No categories found.</div>
+      ) : (
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden md:block bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+            <table className="w-full text-left">
+              <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-medium">
+                <tr className="border-b border-slate-200">
+                  <th className="px-6 py-3">Category Name</th>
+                  <th className="px-6 py-3 text-right">Actions</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody className="divide-y divide-slate-200 text-sm">
+                {categories.map(cat => (
+                  <tr key={cat._id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4 font-medium text-slate-800">{cat.name}</td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        {user?.role === 'admin' && (
+                          <>
+                            <button
+                              onClick={() => {
+                                setEditingCat(cat);
+                                setFormData({ name: cat.name });
+                                setIsModalOpen(true);
+                              }}
+                              className="p-2 text-slate-400 hover:text-amber-600 transition-colors"
+                            >
+                              <Edit2 size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(cat._id)}
+                              className="p-2 text-slate-400 hover:text-red-600 transition-colors"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="grid grid-cols-1 gap-4 md:hidden">
+            {categories.map(cat => (
+              <div key={cat._id} className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm flex justify-between items-center">
+                <span className="font-medium text-slate-800">{cat.name}</span>
+                <div className="flex gap-2">
+                  {user?.role === 'admin' && (
+                    <>
+                      <button
+                        onClick={() => {
+                          setEditingCat(cat);
+                          setFormData({ name: cat.name });
+                          setIsModalOpen(true);
+                        }}
+                        className="p-2 text-slate-400 hover:text-amber-600"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(cat._id)}
+                        className="p-2 text-slate-400 hover:text-red-600"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -140,8 +174,8 @@ const Categories = () => {
                 />
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded font-medium transition-colors duration-200 flex items-center justify-center gap-2 px-4 py-2 rounded font-medium transition-colors duration-200 flex items-center justify-center gap-2-secondary">Cancel</button>
-                <button type="submit" className="px-4 py-2 rounded font-medium transition-colors duration-200 flex items-center justify-center gap-2 px-4 py-2 rounded font-medium transition-colors duration-200 flex items-center justify-center gap-2-primary">Save Category</button>
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded font-medium transition-colors duration-200 bg-slate-200 text-slate-700 hover:bg-slate-300">Cancel</button>
+                <button type="submit" className="px-4 py-2 rounded font-medium transition-colors duration-200 bg-blue-600 text-white hover:bg-blue-700">Save Category</button>
               </div>
             </form>
           </div>

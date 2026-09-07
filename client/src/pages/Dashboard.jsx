@@ -45,10 +45,10 @@ const Dashboard = () => {
   if (loading) return <div className="p-8 text-center text-slate-500">Loading dashboard...</div>;
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 md:p-8 space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800">Dashboard Overview</h1>
-        <p className="text-slate-500">Real-time status of your inventory</p>
+        <h1 className="text-xl md:text-2xl font-bold text-slate-800">Dashboard Overview</h1>
+        <p className="text-sm md:text-base text-slate-500">Real-time status of your inventory</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -58,42 +58,69 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between px-2">
             <h2 className="font-bold text-slate-800">Recent Transactions</h2>
-            <button className="text-sm text-blue-600 hover:underline">View All</button>
+            <Link to="/transactions" className="text-sm text-blue-600 hover:underline">View All</Link>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-medium">
-                <tr>
-                  <th className="px-6 py-3">Item</th>
-                  <th className="px-6 py-3">Type</th>
-                  <th className="px-6 py-3">Qty</th>
-                  <th className="px-6 py-3">Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 text-sm">
-                {recentTransactions.length === 0 ? (
-                  <tr><td colSpan="4" className="px-6 py-8 text-center text-slate-400">No recent activity</td></tr>
-                ) : (
-                  recentTransactions.map((t, i) => (
-                    <tr key={i} className="hover:bg-slate-50">
-                      <td className="px-6 py-4 font-medium text-slate-700">{t.item?.name}</td>
-                      <td className="px-6 py-4">
-                        <span className={`flex items-center gap-1 ${t.type === 'IN' ? 'text-green-600' : 'text-red-600'}`}>
-                          {t.type === 'IN' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-                          {t.type}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-slate-600">{t.quantity}</td>
-                      <td className="px-6 py-4 text-slate-400">{new Date(t.date).toLocaleDateString()}</td>
+
+          {recentTransactions.length === 0 ? (
+            <div className="bg-white border border-slate-200 rounded-lg p-8 text-center text-slate-400 shadow-sm">
+              No recent activity
+            </div>
+          ) : (
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden md:block bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+                <table className="w-full text-left">
+                  <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-medium">
+                    <tr>
+                      <th className="px-6 py-3">Item</th>
+                      <th className="px-6 py-3">Type</th>
+                      <th className="px-6 py-3">Qty</th>
+                      <th className="px-6 py-3">Date</th>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 text-sm">
+                    {recentTransactions.map((t, i) => (
+                      <tr key={i} className="hover:bg-slate-50">
+                        <td className="px-6 py-4 font-medium text-slate-700">{t.item?.name}</td>
+                        <td className="px-6 py-4">
+                          <span className={`flex items-center gap-1 ${t.type === 'IN' ? 'text-green-600' : 'text-red-600'}`}>
+                            {t.type === 'IN' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                            {t.type}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-slate-600">{t.quantity}</td>
+                        <td className="px-6 py-4 text-slate-400">{new Date(t.date).toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="grid grid-cols-1 gap-4 md:hidden">
+                {recentTransactions.map((t, i) => (
+                  <div key={i} className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded ${t.type === 'IN' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                        {t.type === 'IN' ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
+                      </div>
+                      <div>
+                        <p className="font-medium text-slate-800">{t.item?.name}</p>
+                        <p className="text-xs text-slate-500">{new Date(t.date).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-slate-700">{t.quantity}</p>
+                      <p className={`text-xs font-medium ${t.type === 'IN' ? 'text-green-600' : 'text-red-600'}`}>{t.type}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
         <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6">
