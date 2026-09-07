@@ -1,5 +1,9 @@
 const Item = require('../models/Item');
 const Transaction = require('../models/Transaction');
+const Category = require('../models/Category');
+const fs = require('fs');
+const csv = require('csv-parser');
+const { Parser } = require('json2csv');
 
 exports.getItems = async (req, res) => {
   try {
@@ -84,6 +88,88 @@ exports.getLowStockItems = async (req, res) => {
       $expr: { $lte: ['$quantity', '$reorderThreshold'] }
     }).populate('category');
     res.json(items);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.importItems = async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+
+    const results = [];
+    const filePath = req.file.path;
+
+    await new Promise((resolve, reject) => {
+      fs.createReadStream(filePath)
+        .pipe(csv())
+        .on('data', (data) => results.push(data))
+        .on('end', resolve)
+        .on('error', reject);
+    });
+
+    // Clean up the uploaded file immediately
+    fs.unlinkSync(filePath);
+
+    let importedCount = 0;
+    for (const row of results) {
+      try {
+        // Resolve category
+        let category = await Category.findOne({ name: row.category });
+        if (!category) {
+          category = await Category.create({ name: row.category || 'Uncategorized' });
+        }
+
+        const item = await Item.create({
+          name: row.name,
+          sku: row.sku,
+          category: category._id,
+          quantity: parseInt(row.quantity) || 0,
+          unitPrice: parseFloat(row.unitPrice) || 0,
+          supplier: row.supplier,
+          reorderThreshold: parseInt(row.reorderThreshold) || 10,
+        });
+
+        await Transaction.create({
+          item: item._id,
+          type: 'IN',
+          quantity: item.quantity,
+          note: 'Imported from CSV',
+          user: req.user._id,
+        });
+
+        importedCount++;
+      } catch (err) {
+        console.error(`Error importing row ${row.name}:`, err);
+      }
+    }
+
+    res.status(201).json({ message: `Successfully imported ${importedCount} items` });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.exportItems = async (req, res) => {
+  try {
+    const items = await Item.find().populate('category');
+
+    const data = items.map(item => ({
+      SKU: item.sku,
+      Name: item.name,
+      Category: item.category?.name || 'N/A',
+      Quantity: item.quantity,
+      UnitPrice: item.unitPrice,
+      Supplier: item.supplier,
+      Threshold: item.reorderThreshold,
+    }));
+
+    const json2csvParser = new Parser();
+    const csv = json2csvParser.parse(data);
+
+    res.header('Content-Type', 'text/csv');
+    res.attachment('inventory_audit.csv');
+    return res.send(csv);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
