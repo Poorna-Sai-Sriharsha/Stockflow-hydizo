@@ -9,8 +9,24 @@ connectDB();
 
 const app = express();
 
+// CORS Configuration: Allow requests from the frontend
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  process.env.FRONTEND_URL // Set this in your production environment (e.g., Render/Vercel)
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      return callback(new Error('The CORS policy for this site does not allow requests from the given origin.'), false);
+    }
+    callback(null, true);
+  }
+}));
+
 app.use(compression());
-app.use(cors());
 app.use(express.json());
 
 app.use('/api/auth', require('./routes/auth'));
