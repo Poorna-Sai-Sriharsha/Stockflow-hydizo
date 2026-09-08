@@ -19,7 +19,12 @@ const allowedOrigins = [
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
+
+    // Normalize origin by removing trailing slash
+    const normalizedOrigin = origin.replace(/\/+$/, "");
+    const normalizedAllowed = allowedOrigins.map(o => o.replace(/\/+$/, ""));
+
+    if (normalizedAllowed.indexOf(normalizedOrigin) === -1) {
       return callback(new Error('The CORS policy for this site does not allow requests from the given origin.'), false);
     }
     callback(null, true);
