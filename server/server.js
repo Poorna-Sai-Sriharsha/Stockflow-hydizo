@@ -9,13 +9,20 @@ connectDB();
 
 const app = express();
 
-// CORS Configuration: Allow all origins for maximum compatibility during deployment
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// 1. Absolute First: Manual CORS Headers (The "Hammer" Approach)
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
+// 2. Standard CORS middleware as backup
+app.use(cors());
 app.use(compression());
 app.use(express.json());
 
