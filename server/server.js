@@ -9,26 +9,11 @@ connectDB();
 
 const app = express();
 
-// CORS Configuration: Allow requests from the frontend
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  process.env.FRONTEND_URL // Set this in your production environment (e.g., Render/Vercel)
-].filter(Boolean);
-
+// CORS Configuration: Allow all origins for maximum compatibility during deployment
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-
-    // Normalize origin by removing trailing slash
-    const normalizedOrigin = origin.replace(/\/+$/, "");
-    const normalizedAllowed = allowedOrigins.map(o => o.replace(/\/+$/, ""));
-
-    if (normalizedAllowed.indexOf(normalizedOrigin) === -1) {
-      return callback(new Error('The CORS policy for this site does not allow requests from the given origin.'), false);
-    }
-    callback(null, true);
-  }
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(compression());
