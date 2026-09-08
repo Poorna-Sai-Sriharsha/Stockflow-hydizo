@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const User = require('./models/User');
 const Category = require('./models/Category');
 const Item = require('./models/Item');
+const Transaction = require('./models/Transaction');
 
 const seedDB = async () => {
   try {
@@ -11,6 +12,7 @@ const seedDB = async () => {
     await User.deleteMany();
     await Category.deleteMany();
     await Item.deleteMany();
+    await Transaction.deleteMany();
 
     const adminUser = await User.create({
       name: 'System Admin',
